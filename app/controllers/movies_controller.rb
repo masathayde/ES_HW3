@@ -43,13 +43,13 @@ class MoviesController < ApplicationController
   def create
     #params.permit!
     #@movie = Movie.create!(params[:movie])
-    Movie.create(movie_params)
+    @movie = Movie.create!(movie_params)
     flash[:notice] = "#{@movie.title} was successfully created."
     redirect_to movies_path
   end
 
   def movie_params
-    params.require(:movie).permit(:title, :rating, :description, :release_date)
+    params.require(:movie).permit(:title, :rating, :director, :description, :release_date)
   end
 
   def edit
@@ -69,6 +69,16 @@ class MoviesController < ApplicationController
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
+  end
+
+  def search_directors
+    @director = params[:director]
+    if (@director == nil || @director == '')
+      flash[:warning] = "The selected movie doesn't have a valid director."
+      redirect_to movies_path
+    else
+      @movies = Movie.find_same_directors(@director)
+    end
   end
 
 end

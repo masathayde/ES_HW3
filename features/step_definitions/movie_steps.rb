@@ -59,7 +59,24 @@ Then('I should see all of the movies') do
   end
 end
 
-Then('I should see {string} before {string}') do |string, string2|
-  assert (/#{string}.*#{string2}/m =~ page.body) != nil
-  assert (/#{string2}.*#{string}/m =~ page.body) == nil
+Then /^I should see "([^"]*)" before "([^"]*)"$/ do |name0, name1|
+  if page.respond_to? :should
+    page.should have_content(/#{name0}.*#{name1}/m)
+    page.should have_no_content(/#{name1}.*#{name0}/m)
+  else
+    assert (/#{name0}.*#{name1}/m =~ page.body) != nil
+    assert (/#{name1}.*#{name0}/m =~ page.body) == nil
+  end
+end
+
+Then /^(?:|I )should see a list of movies by "([^"]*)"$/ do |text|
+  if page.respond_to? :should
+    page.all('#director').each do |td|
+      td.should have_content(text)
+    end
+  else
+    page.all('#director').each do |td|
+      assert td.has_content?(text)
+    end
+  end
 end
